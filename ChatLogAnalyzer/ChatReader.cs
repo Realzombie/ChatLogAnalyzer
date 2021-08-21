@@ -99,11 +99,15 @@ namespace ChatLogAnalyzer
 
                     foreach (var item in curatedList)
                     {
-                        var totalSeconds = (item.StartDate.TimeOfDay.TotalSeconds - chatsByTime.First().created_at.Trim(TimeSpan.TicksPerSecond).TimeOfDay.TotalSeconds) - 20;
-                        var minutesIntoVod = Convert.ToInt32(Math.Floor(totalSeconds / 60));
-                        var secondsIntoVod = Convert.ToInt32(Math.Floor(totalSeconds - (minutesIntoVod * 60)));
+                        if (curatedList.Any(x => x.StartDate >= item.StartDate.AddMinutes(-1) && x.StartDate < item.StartDate))
+                            continue;
 
-                        txtBxOutput.Text += url + "?t=" + minutesIntoVod + "m" + secondsIntoVod + "s" + System.Environment.NewLine;
+                        var totalSeconds = (item.StartDate.TimeOfDay.TotalSeconds - chatsByTime.First().created_at.Trim(TimeSpan.TicksPerSecond).TimeOfDay.TotalSeconds) - 20;
+                        var hoursIntoVod = Convert.ToInt32(Math.Floor(totalSeconds / 3600));
+                        var minutesIntoVod = Convert.ToInt32(Math.Floor((totalSeconds - (hoursIntoVod * 3600)) / 60));
+                        var secondsIntoVod = Convert.ToInt32(Math.Floor(totalSeconds - ((minutesIntoVod * 60) + (hoursIntoVod * 3600))));
+
+                        txtBxOutput.Text += url + "?t=" + hoursIntoVod + "h" + minutesIntoVod + "m" + secondsIntoVod + "s" + System.Environment.NewLine;
                     }
                 }
             }
